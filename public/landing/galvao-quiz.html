@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico Técnico · Galvão Lavagem Técnica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C96A;
+    --gold-dim: rgba(201,168,76,0.15);
+    --black: #0A0A0A;
+    --surface: #111111;
+    --surface2: #1A1A1A;
+    --surface3: #242424;
+    --border: rgba(255,255,255,0.07);
+    --border-gold: rgba(201,168,76,0.3);
+    --text: #F0EDE6;
+    --text-muted: #7A7570;
+    --text-dim: #4A4540;
+    --radius: 12px;
+    --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Layout */
+  .quiz-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header */
+  .quiz-header {
+    padding: 24px 24px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand-mark {
+    width: 32px;
+    height: 32px;
+    border: 1.5px solid var(--gold);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .brand-mark svg { width: 16px; height: 16px; }
+
+  .brand-name {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .step-counter {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 400;
+    letter-spacing: 0.06em;
+  }
+
+  .step-counter span {
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  /* Progress */
+  .progress-bar-wrap {
+    padding: 20px 24px 0;
+  }
+
+  .progress-track {
+    height: 2px;
+    background: var(--surface3);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 100%);
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+  }
+
+  /* Main stage */
+  .quiz-stage {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px 100px;
+  }
+
+  .step-frame {
+    width: 100%;
+    max-width: 520px;
+    position: relative;
+  }
+
+  /* Step animations */
+  .step {
+    display: none;
+    animation: stepIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  .step.active { display: block; }
+  .step.exit { animation: stepOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+
+  @keyframes stepIn {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes stepOut {
+    from { opacity: 1; transform: translateY(0); }
+    to   { opacity: 0; transform: translateY(-14px); }
+  }
+
+  /* Step label */
+  .step-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+  }
+
+  /* Step title */
+  .step-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(26px, 5vw, 38px);
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .step-subtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 36px;
+  }
+
+  /* Inputs */
+  .field-group { display: flex; flex-direction: column; gap: 14px; margin-bottom: 36px; }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .field label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .field input,
+  .field textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 300;
+    padding: 16px 18px;
+    outline: none;
+    transition: border-color var(--transition), background var(--transition);
+    width: 100%;
+    -webkit-appearance: none;
+  }
+
+  .field input::placeholder,
+  .field textarea::placeholder { color: var(--text-dim); }
+
+  .field input:focus,
+  .field textarea:focus {
+    border-color: var(--border-gold);
+    background: var(--surface3);
+  }
+
+  .field textarea {
+    resize: none;
+    min-height: 120px;
+    line-height: 1.6;
+  }
+
+  /* Location row */
+  .location-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  .location-row .field { flex: 1; }
+
+  .geo-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 16px 14px;
+    white-space: nowrap;
+    transition: border-color var(--transition), color var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .geo-btn:hover { border-color: var(--border-gold); color: var(--gold); }
+
+  .geo-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+  /* Option cards (single select) */
+  .options-grid {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 36px;
+  }
+
+  .options-grid.col2 { grid-template-columns: 1fr 1fr; }
+  .options-grid.col1 { grid-template-columns: 1fr; }
+
+  .option-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    padding: 18px 20px;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .option-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gold-dim);
+    opacity: 0;
+    transition: opacity var(--transition);
+  }
+
+  .option-card:hover { border-color: rgba(201,168,76,0.4); }
+  .option-card:hover::before { opacity: 0.5; }
+
+  .option-card.selected {
+    border-color: var(--gold);
+    background: var(--surface3);
+  }
+
+  .option-card.selected::before { opacity: 1; }
+
+  .option-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .option-text {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text);
+    position: relative;
+  }
+
+  .option-check {
+    margin-left: auto;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition);
+    position: relative;
+  }
+
+  .option-card.selected .option-check {
+    border-color: var(--gold);
+    background: var(--gold);
+  }
+
+  .option-card.selected .option-check::after {
+    content: '';
+    width: 5px;
+    height: 5px;
+    background: var(--black);
+    border-radius: 50%;
+  }
+
+  /* Multi-select chips */
+  .chips-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 36px;
+  }
+
+  .chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    padding: 10px 18px;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .chip:hover { border-color: rgba(201,168,76,0.4); color: var(--text); }
+
+  .chip.selected {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .chip-icon { font-size: 16px; }
+
+  /* Area size */
+  .size-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .size-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    padding: 20px 14px;
+    text-align: center;
+    transition: all var(--transition);
+  }
+
+  .size-card:hover { border-color: rgba(201,168,76,0.4); }
+
+  .size-card.selected {
+    border-color: var(--gold);
+    background: var(--surface3);
+  }
+
+  .size-icon { font-size: 24px; margin-bottom: 8px; }
+
+  .size-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .size-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* Optional field hint */
+  .optional-hint {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  /* Upload zone */
+  .upload-zone {
+    background: var(--surface2);
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 36px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition);
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .upload-zone:hover,
+  .upload-zone.drag-over {
+    border-color: var(--border-gold);
+    background: var(--surface3);
+  }
+
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .upload-icon { font-size: 32px; margin-bottom: 12px; }
+
+  .upload-primary {
+    font-size: 15px;
+    color: var(--text);
+    font-weight: 400;
+    margin-bottom: 4px;
+  }
+
+  .upload-secondary {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .upload-secondary strong {
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  .upload-previews {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .preview-thumb {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--border);
+  }
+
+  .preview-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .preview-remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    background: rgba(0,0,0,0.75);
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    cursor: pointer;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  .upload-count {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  /* Navigation */
+  .quiz-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, var(--black) 70%, transparent);
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    z-index: 100;
+  }
+
+  .btn-back {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 14px 24px;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-back:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
+  .btn-back[disabled] { opacity: 0; pointer-events: none; }
+
+  .btn-next {
+    background: var(--gold);
+    border: none;
+    border-radius: 99px;
+    color: var(--black);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 14px 32px;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    justify-content: center;
+    max-width: 280px;
+    margin-left: auto;
+  }
+
+  .btn-next:hover { background: var(--gold-light); }
+  .btn-next:active { transform: scale(0.98); }
+
+  .btn-next svg { width: 16px; height: 16px; }
+
+  /* Error */
+  .field-error {
+    font-size: 12px;
+    color: #E05C5C;
+    margin-top: -10px;
+    display: none;
+  }
+
+  .field-error.show { display: block; }
+
+  /* Final screen */
+  .final-screen {
+    text-align: center;
+    padding: 40px 0;
+  }
+
+  .final-icon {
+    width: 72px;
+    height: 72px;
+    background: var(--gold-dim);
+    border: 1px solid var(--border-gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 28px;
+    font-size: 28px;
+  }
+
+  .final-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 14px;
+    line-height: 1.2;
+  }
+
+  .final-sub {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 36px;
+    max-width: 340px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .final-detail {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
+    margin-bottom: 12px;
+  }
+
+  .final-detail-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .final-detail-text {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .final-detail-text strong {
+    display: block;
+    color: var(--text);
+    font-weight: 500;
+    margin-bottom: 2px;
+    font-size: 13px;
+  }
+
+  .btn-whatsapp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--gold);
+    border: none;
+    border-radius: 99px;
+    color: var(--black);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 16px 32px;
+    text-decoration: none;
+    transition: background var(--transition);
+    width: 100%;
+    margin-top: 28px;
+  }
+
+  .btn-whatsapp:hover { background: var(--gold-light); }
+
+  /* Subtle noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .quiz-shell { position: relative; z-index: 1; }
+
+  /* Responsive */
+  @media (max-width: 400px) {
+    .size-cards { grid-template-columns: 1fr; }
+    .options-grid.col2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="quiz-shell">
+
+  <!-- Header -->
+  <header class="quiz-header">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 2L10 6H14L11 9L12 13L8 11L4 13L5 9L2 6H6L8 2Z" stroke="#C9A84C" stroke-width="1.2" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="brand-name">Galvão</span>
+    </div>
+    <span class="step-counter">Etapa <span id="current-step-label">1</span> de 13</span>
+  </header>
+
+  <!-- Progress -->
+  <div class="progress-bar-wrap">
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+
+  <!-- Stage -->
+  <main class="quiz-stage">
+    <div class="step-frame" id="step-frame">
+
+      <!-- Step 1: Dados do cliente -->
+      <div class="step active" data-step="1">
+        <p class="step-label">Dados do cliente</p>
+        <h2 class="step-title">Como podemos te chamar?</h2>
+        <p class="step-subtitle">Precisamos de algumas informações para enviar seu diagnóstico.</p>
+        <div class="field-group">
+          <div class="field">
+            <label>Nome completo</label>
+            <input type="text" id="f-name" placeholder="Seu nome" autocomplete="name" inputmode="text">
+            <span class="field-error" id="err-name">Informe seu nome para continuar.</span>
+          </div>
+          <div class="field">
+            <label>WhatsApp</label>
+            <input type="tel" id="f-phone" placeholder="(22) 99999-9999" autocomplete="tel" inputmode="tel">
+            <span class="field-error" id="err-phone">Informe um número de WhatsApp válido.</span>
+          </div>
+          <div class="field">
+            <label>E-mail <span style="color:var(--text-dim);font-weight:300">(opcional)</span></label>
+            <input type="email" id="f-email" placeholder="seu@email.com" autocomplete="email" inputmode="email">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Localização -->
+      <div class="step" data-step="2">
+        <p class="step-label">Localização</p>
+        <h2 class="step-title">Onde fica o imóvel?</h2>
+        <p class="step-subtitle">Para entendermos o acesso e planejar o atendimento na sua região.</p>
+        <div class="field-group">
+          <div class="location-row">
+            <div class="field">
+              <label>Endereço</label>
+              <input type="text" id="f-address" placeholder="Rua, número, bairro" autocomplete="street-address" inputmode="text">
+            </div>
+            <button class="geo-btn" id="geo-btn" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg>
+              Usar GPS
+            </button>
+          </div>
+          <div class="field">
+            <label>Cidade / Bairro</label>
+            <input type="text" id="f-city" placeholder="Ex: Nova Friburgo, Centro" inputmode="text">
+          </div>
+        </div>
+        <span class="field-error" id="err-address">Informe pelo menos a cidade para continuar.</span>
+      </div>
+
+      <!-- Step 3: Tipo de imóvel -->
+      <div class="step" data-step="3">
+        <p class="step-label">Tipo de imóvel</p>
+        <h2 class="step-title">Qual é o tipo do seu imóvel?</h2>
+        <p class="step-subtitle">Isso nos ajuda a entender o contexto e o volume do serviço.</p>
+        <div class="options-grid col2" id="opts-property">
+          <div class="option-card" data-value="residencia">
+            <span class="option-icon">🏠</span>
+            <span class="option-text">Residência</span>
+            <span class="option-check"></span>
+          </div>
+          <div class="option-card" data-value="condominio">
+            <span class="option-icon">🏢</span>
+            <span class="option-text">Condomínio</span>
+            <span class="option-check"></span>
+          </div>
+          <div class="option-card" data-value="empresa">
+            <span class="option-icon">🏭</span>
+            <span class="option-text">Empresa</span>
+            <span class="option-check"></span>
+          </div>
+          <div class="option-card" data-value="comercio">
+            <span class="option-icon">🏪</span>
+            <span class="option-text">Comércio</span>
+            <span class="option-check"></span>
+          </div>
+        </div>
+        <span class="field-error" id="err-property">Selecione o tipo do imóvel.</span>
+      </div>
+
+      <!-- Step 4: Superfícies -->
+      <div class="step" data-step="4">
+        <p class="step-label">Superfícies</p>
+        <h2 class="step-title">O que precisa ser tratado?</h2>
+        <p class="step-subtitle">Pode selecionar mais de uma opção.</p>
+        <div class="chips-wrap" id="chips-surfaces">
+          <button class="chip" data-value="garagem"><span class="chip-icon">🚗</span> Garagem</button>
+          <button class="chip" data-value="muro"><span class="chip-icon">🧱</span> Muro</button>
+          <button class="chip" data-value="pedra"><span class="chip-icon">🪨</span> Pedra</button>
+          <button class="chip" data-value="fachada"><span class="chip-icon">🏗️</span> Fachada</button>
+          <button class="chip" data-value="telhado"><span class="chip-icon">🏚️</span> Telhado</button>
+          <button class="chip" data-value="piscina"><span class="chip-icon">🏊</span> Borda de piscina</button>
+          <button class="chip" data-value="deck"><span class="chip-icon">🌿</span> Deck</button>
+          <button class="chip" data-value="gourmet"><span class="chip-icon">🍖</span> Área gourmet</button>
+          <button class="chip" data-value="calcada"><span class="chip-icon">🚶</span> Calçada</button>
+          <button class="chip" data-value="outro"><span class="chip-icon">➕</span> Outro</button>
+        </div>
+        <span class="field-error" id="err-surfaces">Selecione ao menos uma superfície.</span>
+      </div>
+
+      <!-- Step 5: Tipo de sujeira -->
+      <div class="step" data-step="5">
+        <p class="step-label">Tipo de sujeira</p>
+        <h2 class="step-title">O que está comprometendo a superfície?</h2>
+        <p class="step-subtitle">Pode selecionar mais de uma.</p>
+        <div class="chips-wrap" id="chips-dirt">
+          <button class="chip" data-value="lodo"><span class="chip-icon">🟫</span> Lodo</button>
+          <button class="chip" data-value="musgo"><span class="chip-icon">🌱</span> Musgo</button>
+          <button class="chip" data-value="mofo"><span class="chip-icon">🔵</span> Mofo</button>
+          <button class="chip" data-value="ferrugem"><span class="chip-icon">🔶</span> Ferrugem</button>
+          <button class="chip" data-value="gordura"><span class="chip-icon">💧</span> Gordura</button>
+          <button class="chip" data-value="manchas"><span class="chip-icon">⚫</span> Manchas gerais</button>
+        </div>
+        <span class="field-error" id="err-dirt">Selecione ao menos um tipo.</span>
+      </div>
+
+      <!-- Step 6: Área -->
+      <div class="step" data-step="6">
+        <p class="step-label">Tamanho da área</p>
+        <h2 class="step-title">Qual é o tamanho aproximado?</h2>
+        <p class="step-subtitle">Uma estimativa já é suficiente para o orçamento inicial.</p>
+        <div class="size-cards" id="opts-size">
+          <div class="size-card" data-value="pequena">
+            <div class="size-icon">◻️</div>
+            <span class="size-label">Pequena</span>
+            <span class="size-sub">Até 30m²</span>
+          </div>
+          <div class="size-card" data-value="media">
+            <div class="size-icon">🔲</div>
+            <span class="size-label">Média</span>
+            <span class="size-sub">30 a 100m²</span>
+          </div>
+          <div class="size-card" data-value="grande">
+            <div class="size-icon">⬛</div>
+            <span class="size-label">Grande</span>
+            <span class="size-sub">Acima de 100m²</span>
+          </div>
+        </div>
+        <span class="field-error" id="err-size">Selecione o tamanho da área.</span>
+        <p class="optional-hint">Se souber a metragem exata, pode informar abaixo.</p>
+        <div class="field">
+          <input type="text" id="f-area" placeholder="Ex: 60m²" inputmode="decimal">
+        </div>
+      </div>
+
+      <!-- Step 7: Acesso -->
+      <div class="step" data-step="7">
+        <p class="step-label">Dificuldade de acesso</p>
+        <h2 class="step-title">Como é o acesso ao local?</h2>
+        <p class="step-subtitle">Isso influencia o tempo de deslocamento de equipamentos.</p>
+        <div class="options-grid col1" id="opts-access">
+          <div class="option-card" data-value="facil">
+            <span class="option-icon">✅</span>
+            <span class="option-text">Fácil — entrada direta, sem obstáculos</span>
+            <span class="option-check"></span>
+          </div>
+          <div class="option-card" data-value="medio">
+            <span class="option-icon">⚠️</span>
+            <span class="option-text">Médio — portão estreito, escadas ou rampa</span>
+            <span class="option-check"></span>
+          </div>
+          <div class="option-card" data-value="dificil">
+            <span class="option-icon">🔒</span>
+            <span class="option-text">Difícil — acesso restrito ou muito irregular</span>
+            <span class="option-check"></span>
+          </div>
+        </div>
+        <span class="field-error" id="err-access">Selecione a dificuldade de acesso.</span>
+      </div>
+
+      <!-- Step 8: Altura -->
+      <div class="step" data-step="8">
+        <p class="step-label">Trabalho em altura</p>
+        <h2 class="step-title">A área envolve superfícies elevadas?</h2>
+        <p class="step-subtitle">Telhados, fachadas acima do térreo ou muros altos requerem equipamento específico.</p>
+        <div class="options-grid col2" id="opts-height">
+          <div class="option-card" data-value="sim">
+            <span class="option-icon">📐</span>
+            <span class="option-text">Sim, tem altura</span>
+            <span class="option-check"></span>
+          </div>
+          <div class="option-card" data-value="nao">
+            <span class="option-icon">🚶</span>
+            <span class="option-text">Não, tudo no nível</span>
+            <span class="option-check"></span>
+          </div>
+        </div>
+        <span class="field-error" id="err-height">Selecione uma opção.</span>
+      </div>
+
+      <!-- Step 9: Frequência -->
+      <div class="step" data-step="9">
+        <p class="step-label">Histórico de limpeza</p>
+        <h2 class="step-title">Com que frequência essa área é limpa?</h2>
+        <p class="step-subtitle">Nos ajuda a entender o grau de acúmulo e planejar o tratamento adequado.</p>
+        <div class="options-grid col1" id="opts-freq">
+          <div class="option-card" data-value="nunca">
+            <span class="option-icon">🕳️</span>
+            <span class="option-text">Nunca foi limpa tecnicamente</span>
+            <span class="option-check"></span>
+          </div>
+          <div class="option-card" data-value="raramente">
+            <span class="option-icon">📅</span>
+            <span class="option-text">Raramente, menos de uma vez ao ano</span>
+            <span class="option-check"></span>
+          </div>
+          <div class="option-card" data-value="frequentemente">
+            <span class="option-icon">🔄</span>
+            <span class="option-text">Com frequência, pelo menos uma vez ao ano</span>
+            <span class="option-check"></span>
+          </div>
+        </div>
+        <span class="field-error" id="err-freq">Selecione uma opção.</span>
+      </div>
+
+      <!-- Step 10: Prioridade -->
+      <div class="step" data-step="10">
+        <p class="step-label">Prioridade</p>
+        <h2 class="step-title">O que mais importa para você nesse serviço?</h2>
+        <p class="step-subtitle">Sua resposta orienta como apresentamos o diagnóstico.</p>
+        <div class="chips-wrap" id="chips-priority">
+          <button class="chip" data-value="estetica"><span class="chip-icon">✨</span> Estética</button>
+          <button class="chip" data-value="seguranca"><span class="chip-icon">🛡️</span> Segurança</button>
+          <button class="chip" data-value="valorizacao"><span class="chip-icon">📈</span> Valorização</button>
+          <button class="chip" data-value="manutencao"><span class="chip-icon">🔧</span> Manutenção</button>
+        </div>
+        <span class="field-error" id="err-priority">Selecione ao menos uma prioridade.</span>
+      </div>
+
+      <!-- Step 11: Observações -->
+      <div class="step" data-step="11">
+        <p class="step-label">Observações</p>
+        <h2 class="step-title">Tem mais alguma coisa que a gente precisa saber?</h2>
+        <p class="step-subtitle">Algum detalhe específico sobre o local, o material ou a situação.</p>
+        <div class="field">
+          <textarea id="f-notes" placeholder="Ex: pedra São Tomé com lodo profundo, muro com histórico de infiltração, área com acesso por escada externa..."></textarea>
+        </div>
+      </div>
+
+      <!-- Step 12: Upload -->
+      <div class="step" data-step="12">
+        <p class="step-label">Imagens do local</p>
+        <h2 class="step-title">Envie fotos da área para análise visual.</h2>
+        <p class="step-subtitle">Até 10 imagens. Você pode tirar uma foto agora pelo celular ou fazer upload da galeria.</p>
+
+        <div id="upload-previews" class="upload-previews" style="display:none"></div>
+
+        <div class="upload-zone" id="upload-zone">
+          <input type="file" id="f-images" accept="image/*" multiple capture="environment">
+          <div class="upload-icon">📷</div>
+          <p class="upload-primary">Toque para enviar ou tire uma foto</p>
+          <p class="upload-secondary">PNG, JPG ou WEBP · Máximo <strong>10 imagens</strong></p>
+        </div>
+
+        <p class="upload-count" id="upload-count" style="display:none"></p>
+      </div>
+
+      <!-- Step 13: Final -->
+      <div class="step" data-step="13">
+        <div class="final-screen">
+          <div class="final-icon">✦</div>
+          <h2 class="final-title">Diagnóstico recebido com sucesso.</h2>
+          <p class="final-sub">Nossa equipe vai analisar as informações e entrar em contato em até 2 horas em dias úteis com um orçamento detalhado.</p>
+
+          <div class="final-detail">
+            <span class="final-detail-icon">🕐</span>
+            <p class="final-detail-text">
+              <strong>Resposta em até 2 horas</strong>
+              Dias úteis, das 8h às 18h.
+            </p>
+          </div>
+          <div class="final-detail">
+            <span class="final-detail-icon">📋</span>
+            <p class="final-detail-text">
+              <strong>Orçamento sem compromisso</strong>
+              Avaliamos seu diagnóstico e enviamos uma proposta clara e detalhada.
+            </p>
+          </div>
+          <div class="final-detail">
+            <span class="final-detail-icon">📍</span>
+            <p class="final-detail-text">
+              <strong>Atendimento em Nova Friburgo e região</strong>
+              Técnico qualificado, equipamento profissional.
+            </p>
+          </div>
+
+          <a href="https://wa.me/5522999999999" class="btn-whatsapp" target="_blank">
+            Falar pelo WhatsApp agora
+          </a>
+        </div>
+      </div>
+
+    </div><!-- end step-frame -->
+  </main>
+
+  <!-- Navigation -->
+  <nav class="quiz-nav">
+    <button class="btn-back" id="btn-back" disabled>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Voltar
+    </button>
+    <button class="btn-next" id="btn-next">
+      Continuar
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </nav>
+
+</div><!-- end quiz-shell -->
+
+<script>
+  const TOTAL_STEPS = 13;
+  let currentStep = 1;
+
+  // Data store — ready for PHP POST
+  const quizData = {
+    name: '', phone: '', email: '',
+    address: '', city: '',
+    property: '',
+    surfaces: [],
+    dirt: [],
+    size: '', area: '',
+    access: '',
+    height: '',
+    frequency: '',
+    priority: [],
+    notes: '',
+    images: []
+  };
+
+  // UI refs
+  const progressFill = document.getElementById('progress-fill');
+  const currentStepLabel = document.getElementById('current-step-label');
+  const btnBack = document.getElementById('btn-back');
+  const btnNext = document.getElementById('btn-next');
+
+  function getStepEl(n) {
+    return document.querySelector(`.step[data-step="${n}"]`);
+  }
+
+  function updateProgress() {
+    const pct = ((currentStep - 1) / (TOTAL_STEPS - 1)) * 100;
+    progressFill.style.width = pct + '%';
+    currentStepLabel.textContent = currentStep;
+    btnBack.disabled = currentStep === 1;
+
+    if (currentStep === TOTAL_STEPS) {
+      btnNext.style.display = 'none';
+      btnBack.style.display = 'none';
+    } else {
+      btnNext.style.display = '';
+    }
+  }
+
+  function goTo(n) {
+    const current = getStepEl(currentStep);
+    const next = getStepEl(n);
+    if (!next) return;
+
+    current.classList.remove('active');
+    current.classList.add('exit');
+    setTimeout(() => current.classList.remove('exit'), 300);
+
+    next.classList.add('active');
+    currentStep = n;
+    updateProgress();
+    window.scrollTo(0, 0);
+  }
+
+  // Validation
+  function validate(step) {
+    switch (step) {
+      case 1: {
+        let ok = true;
+        const name = document.getElementById('f-name').value.trim();
+        const phone = document.getElementById('f-phone').value.trim();
+        const errName = document.getElementById('err-name');
+        const errPhone = document.getElementById('err-phone');
+
+        if (name.length < 2) { errName.classList.add('show'); ok = false; }
+        else { errName.classList.remove('show'); quizData.name = name; }
+
+        if (phone.replace(/\D/g,'').length < 10) { errPhone.classList.add('show'); ok = false; }
+        else { errPhone.classList.remove('show'); quizData.phone = phone; }
+
+        quizData.email = document.getElementById('f-email').value.trim();
+        return ok;
+      }
+      case 2: {
+        quizData.address = document.getElementById('f-address').value.trim();
+        quizData.city = document.getElementById('f-city').value.trim();
+        const err = document.getElementById('err-address');
+        if (!quizData.city && !quizData.address) { err.classList.add('show'); return false; }
+        err.classList.remove('show');
+        return true;
+      }
+      case 3: {
+        const err = document.getElementById('err-property');
+        if (!quizData.property) { err.classList.add('show'); return false; }
+        err.classList.remove('show'); return true;
+      }
+      case 4: {
+        const err = document.getElementById('err-surfaces');
+        if (!quizData.surfaces.length) { err.classList.add('show'); return false; }
+        err.classList.remove('show'); return true;
+      }
+      case 5: {
+        const err = document.getElementById('err-dirt');
+        if (!quizData.dirt.length) { err.classList.add('show'); return false; }
+        err.classList.remove('show'); return true;
+      }
+      case 6: {
+        quizData.area = document.getElementById('f-area').value.trim();
+        const err = document.getElementById('err-size');
+        if (!quizData.size) { err.classList.add('show'); return false; }
+        err.classList.remove('show'); return true;
+      }
+      case 7: {
+        const err = document.getElementById('err-access');
+        if (!quizData.access) { err.classList.add('show'); return false; }
+        err.classList.remove('show'); return true;
+      }
+      case 8: {
+        const err = document.getElementById('err-height');
+        if (!quizData.height) { err.classList.add('show'); return false; }
+        err.classList.remove('show'); return true;
+      }
+      case 9: {
+        const err = document.getElementById('err-freq');
+        if (!quizData.frequency) { err.classList.add('show'); return false; }
+        err.classList.remove('show'); return true;
+      }
+      case 10: {
+        const err = document.getElementById('err-priority');
+        if (!quizData.priority.length) { err.classList.add('show'); return false; }
+        err.classList.remove('show'); return true;
+      }
+      case 11: {
+        quizData.notes = document.getElementById('f-notes').value.trim();
+        return true;
+      }
+      case 12: return true;
+      default: return true;
+    }
+  }
+
+  // Submit (preparado para PHP)
+  function submitQuiz() {
+    console.log('QUIZ DATA:', JSON.stringify(quizData, null, 2));
+    /*
+      Para integrar com PHP:
+      fetch('/api/quiz.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(quizData)
+      });
+    */
+  }
+
+  btnNext.addEventListener('click', () => {
+    if (!validate(currentStep)) return;
+    if (currentStep === TOTAL_STEPS - 1) submitQuiz();
+    goTo(currentStep + 1);
+  });
+
+  btnBack.addEventListener('click', () => {
+    if (currentStep > 1) goTo(currentStep - 1);
+  });
+
+  // Single-select option cards
+  function setupSingleSelect(containerId, field) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.querySelectorAll('.option-card').forEach(card => {
+      card.addEventListener('click', () => {
+        container.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        quizData[field] = card.dataset.value;
+      });
+    });
+  }
+
+  setupSingleSelect('opts-property', 'property');
+  setupSingleSelect('opts-access', 'access');
+  setupSingleSelect('opts-height', 'height');
+  setupSingleSelect('opts-freq', 'frequency');
+
+  // Size cards
+  document.querySelectorAll('#opts-size .size-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('#opts-size .size-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      quizData.size = card.dataset.value;
+    });
+  });
+
+  // Multi-select chips
+  function setupChips(containerId, field) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        chip.classList.toggle('selected');
+        const val = chip.dataset.value;
+        const arr = quizData[field];
+        const idx = arr.indexOf(val);
+        if (idx === -1) arr.push(val);
+        else arr.splice(idx, 1);
+      });
+    });
+  }
+
+  setupChips('chips-surfaces', 'surfaces');
+  setupChips('chips-dirt', 'dirt');
+  setupChips('chips-priority', 'priority');
+
+  // Image upload
+  const fileInput = document.getElementById('f-images');
+  const uploadZone = document.getElementById('upload-zone');
+  const previewsEl = document.getElementById('upload-previews');
+  const countEl = document.getElementById('upload-count');
+  let uploadedFiles = [];
+
+  function renderPreviews() {
+    previewsEl.innerHTML = '';
+    if (uploadedFiles.length === 0) {
+      previewsEl.style.display = 'none';
+      countEl.style.display = 'none';
+      return;
+    }
+    previewsEl.style.display = 'grid';
+    countEl.style.display = 'block';
+    countEl.textContent = `${uploadedFiles.length} imagem${uploadedFiles.length > 1 ? 's' : ''} selecionada${uploadedFiles.length > 1 ? 's' : ''}`;
+
+    uploadedFiles.forEach((file, i) => {
+      const thumb = document.createElement('div');
+      thumb.className = 'preview-thumb';
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      const btn = document.createElement('button');
+      btn.className = 'preview-remove';
+      btn.textContent = '×';
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        uploadedFiles.splice(i, 1);
+        renderPreviews();
+      });
+      thumb.appendChild(img);
+      thumb.appendChild(btn);
+      previewsEl.appendChild(thumb);
+    });
+  }
+
+  fileInput.addEventListener('change', () => {
+    const newFiles = Array.from(fileInput.files);
+    const combined = [...uploadedFiles, ...newFiles];
+    uploadedFiles = combined.slice(0, 10);
+    quizData.images = uploadedFiles.map(f => f.name);
+    renderPreviews();
+    fileInput.value = '';
+  });
+
+  uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+  uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    const dropped = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+    uploadedFiles = [...uploadedFiles, ...dropped].slice(0, 10);
+    quizData.images = uploadedFiles.map(f => f.name);
+    renderPreviews();
+  });
+
+  // GPS
+  document.getElementById('geo-btn').addEventListener('click', () => {
+    if (!navigator.geolocation) return;
+    const btn = document.getElementById('geo-btn');
+    btn.textContent = 'Buscando...';
+    navigator.geolocation.getCurrentPosition(pos => {
+      const { latitude, longitude } = pos.coords;
+      quizData.address = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+      document.getElementById('f-address').value = `Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)}`;
+      btn.textContent = '✓ Localizado';
+    }, () => {
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg> Usar GPS`;
+    });
+  });
+
+  // Init
+  updateProgress();
+</script>
+</body>
+</html>

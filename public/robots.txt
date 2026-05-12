@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /landing/
+Allow: /assets/
+Allow: /blog/
+Disallow: /admin/
+Disallow: /core/
+Disallow: /storage/
+
+Sitemap: https://galvaolavagemtecnica.com.br/sitemap.xml
