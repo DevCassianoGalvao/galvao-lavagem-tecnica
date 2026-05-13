@@ -1,6 +1,8 @@
 .env
 core/config/env.php
 /vendor/
+/legacy-system/
+/backup-system/
 /logs/*
 !/logs/.htaccess
 !/logs/README.md

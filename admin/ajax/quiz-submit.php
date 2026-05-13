@@ -1,72 +1,45 @@
 <?php
-
-require_once __DIR__ . '/../../core/bootstrap.php';
+require_once __DIR__ . '/../_bootstrap.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Metodo nao permitido.',
-    ]);
+    echo json_encode(['success' => false, 'message' => 'Método não permitido.'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-if (!csrf_validate($_POST['_csrf_token'] ?? null)) {
-    http_response_code(419);
+try {
+    $pdo = mvp_pdo();
+    $logger = new SecurityLogger($pdo);
+    (new RateLimitService($pdo, $logger))->requireAllowed('mvp_quiz_submit', 8, 3600);
+
+    if (!csrf_validate($_POST['_csrf_token'] ?? null)) {
+        http_response_code(419);
+        echo json_encode(['success' => false, 'message' => 'Token de segurança inválido.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $name = clean_text($_POST['name'] ?? '');
+    $phone = clean_text($_POST['phone'] ?? '');
+
+    if ($name === '' || $phone === '') {
+        http_response_code(422);
+        echo json_encode(['success' => false, 'message' => 'Informe nome e WhatsApp.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $leadId = mvp_service()->createLead($_POST, $_FILES['images'] ?? []);
+
     echo json_encode([
-        'success' => false,
-        'message' => 'Token de seguranca invalido.',
-    ]);
-    exit;
-}
-
-$payload = [
-    'name' => clean_text($_POST['name'] ?? ''),
-    'phone' => clean_text($_POST['phone'] ?? ''),
-    'email' => filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL),
-    'address' => clean_text($_POST['address'] ?? ''),
-    'latitude' => clean_text($_POST['latitude'] ?? ''),
-    'longitude' => clean_text($_POST['longitude'] ?? ''),
-    'property_type' => clean_text($_POST['property_type'] ?? ''),
-    'surfaces' => array_map('clean_text', $_POST['surfaces'] ?? []),
-    'dirt_types' => array_map('clean_text', $_POST['dirt_types'] ?? []),
-    'area_size' => clean_text($_POST['area_size'] ?? ''),
-    'square_meters' => clean_text($_POST['square_meters'] ?? ''),
-    'access_difficulty' => clean_text($_POST['access_difficulty'] ?? ''),
-    'elevated_height' => clean_text($_POST['elevated_height'] ?? ''),
-    'cleaning_frequency' => clean_text($_POST['cleaning_frequency'] ?? ''),
-    'priority' => clean_text($_POST['priority'] ?? ''),
-    'notes' => clean_text($_POST['notes'] ?? ''),
-];
-
-$imageCount = isset($_FILES['images']['name']) && is_array($_FILES['images']['name'])
-    ? count(array_filter($_FILES['images']['name']))
-    : 0;
-
-if ($payload['name'] === '' || $payload['phone'] === '' || $payload['email'] === '') {
+        'success' => true,
+        'message' => 'Recebemos suas informações e entraremos em contato em breve pelo WhatsApp.',
+        'lead_id' => $leadId,
+    ], JSON_UNESCAPED_UNICODE);
+} catch (Throwable $exception) {
     http_response_code(422);
     echo json_encode([
         'success' => false,
-        'message' => 'Dados obrigatorios ausentes.',
-    ]);
-    exit;
+        'message' => APP_DEBUG ? $exception->getMessage() : 'Não foi possível enviar agora.',
+    ], JSON_UNESCAPED_UNICODE);
 }
-
-if ($imageCount > 10) {
-    http_response_code(422);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Envie no maximo 10 imagens.',
-    ]);
-    exit;
-}
-
-// Placeholder de persistencia: proxima etapa pode salvar em MySQL e mover imagens para storage/uploads/quiz.
-echo json_encode([
-    'success' => true,
-    'message' => 'Diagnostico tecnico recebido.',
-    'diagnostic' => $payload,
-    'images_received' => $imageCount,
-]);

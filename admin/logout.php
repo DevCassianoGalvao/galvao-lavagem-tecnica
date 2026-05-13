@@ -1,10 +1,6 @@
 <?php
+require_once __DIR__ . '/_bootstrap.php';
 
-require_once __DIR__ . '/../core/bootstrap.php';
-
-$pdo = Connection::get($config);
-$auth = new AuthService($pdo, new SecurityLogger($pdo), new RateLimitService($pdo));
-$auth->logout();
-
-header('Location: /admin/login.php');
+unset($_SESSION['mvp_admin']);
+header('Location: login.php');
 exit;

@@ -43,16 +43,16 @@
                     </div>
                 </fieldset>
 
-                <fieldset class="quiz-step" data-quiz-step data-step-title="Localizacao">
-                    <legend>Localizacao</legend>
-                    <p class="quiz-step__copy">Informe o endereco ou autorize sua localizacao para uma futura integracao com OpenStreetMap e Nominatim.</p>
+                <fieldset class="quiz-step" data-quiz-step data-step-title="Localização">
+                    <legend>Localização</legend>
+                    <p class="quiz-step__copy">Informe o endereço ou autorize sua localização para uma futura integração com OpenStreetMap e Nominatim.</p>
                     <div class="quiz-fields">
                         <div class="field">
-                            <label for="quiz-address">Endereco manual</label>
-                            <input class="input" id="quiz-address" name="address" type="text" autocomplete="street-address" placeholder="Rua, numero, bairro e cidade" required>
+                            <label for="quiz-address">Endereço manual</label>
+                            <input class="input" id="quiz-address" name="address" type="text" autocomplete="street-address" placeholder="Rua, número, bairro e cidade" required>
                         </div>
                         <button class="btn btn--ghost" type="button" data-location-button>Usar minha localizacao</button>
-                        <p class="quiz-location-status" data-location-status>Localizacao opcional. O endereco manual pode ser preenchido normalmente.</p>
+                        <p class="quiz-location-status" data-location-status>Localização opcional. O endereço manual pode ser preenchido normalmente.</p>
                     </div>
                 </fieldset>
 
@@ -86,7 +86,7 @@
                     <legend>Tipo de sujeira</legend>
                     <p class="quiz-step__copy">Indique os sinais mais visiveis na superficie.</p>
                     <div class="quiz-options quiz-options--multi">
-                        <?php foreach (['Lodo', 'Musgo', 'Mofo', 'Ferrugem', 'Gordura', 'Manchas'] as $item): ?>
+                        <?php foreach (['Lodo', 'Musgo', 'Mofo', 'Manchas'] as $item): ?>
                             <label class="quiz-option">
                                 <input type="checkbox" name="dirt_types[]" value="<?= e($item); ?>" data-required-group="dirt_types">
                                 <span><?= e($item); ?></span>
@@ -114,7 +114,7 @@
 
                 <fieldset class="quiz-step" data-quiz-step data-step-title="Dificuldade de acesso">
                     <legend>Dificuldade de acesso</legend>
-                    <p class="quiz-step__copy">Avalie o acesso para a equipe tecnica chegar e executar o servico.</p>
+                    <p class="quiz-step__copy">Avalie o acesso para a equipe técnica chegar e executar o serviço.</p>
                     <div class="quiz-options">
                         <?php foreach (['Facil', 'Medio', 'Dificil'] as $item): ?>
                             <label class="quiz-option">
@@ -164,11 +164,11 @@
                     </div>
                 </fieldset>
 
-                <fieldset class="quiz-step" data-quiz-step data-step-title="Observacoes">
-                    <legend>Observacoes</legend>
+                <fieldset class="quiz-step" data-quiz-step data-step-title="Observações">
+                    <legend>Observações</legend>
                     <p class="quiz-step__copy">Inclua detalhes importantes sobre manchas, material, urgencia, acesso ou expectativa visual.</p>
                     <div class="field">
-                        <label for="quiz-notes">Observacoes tecnicas</label>
+                        <label for="quiz-notes">Observações técnicas</label>
                         <textarea class="textarea" id="quiz-notes" name="notes" placeholder="Descreva o que considera relevante para o diagnostico."></textarea>
                     </div>
                 </fieldset>
@@ -191,7 +191,7 @@
                     <p class="quiz-step__copy">As informacoes foram organizadas para uma avaliacao mais precisa. A equipe Galvao podera analisar o ambiente, entender as superficies e orientar o melhor caminho para a revitalizacao.</p>
                     <div class="quiz-summary">
                         <span class="badge badge--gold">Diagnostico registrado</span>
-                        <span class="badge">Analise tecnica</span>
+                        <span class="badge">Análise técnica</span>
                         <span class="badge">Retorno consultivo</span>
                     </div>
                 </fieldset>

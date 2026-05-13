@@ -1,76 +1,43 @@
 <?php
+require_once __DIR__ . '/_bootstrap.php';
 
-require_once __DIR__ . '/../core/bootstrap.php';
-
-$error = null;
-$adminCssBundle = AssetService::adminBundle('css');
+$error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $pdo = Connection::get($config);
-    $logger = new SecurityLogger($pdo);
-    $rateLimiter = new RateLimitService($pdo, $logger);
-
     if (!csrf_validate($_POST['_csrf_token'] ?? null)) {
-        $logger->log('warning', 'csrf_failed_login', 'CSRF invalido no login.');
-        $error = 'Nao foi possivel validar a sessao. Atualize a pagina e tente novamente.';
+        $error = 'Token de segurança inválido.';
+    } elseif (hash_equals(mvp_admin_email(), (string) ($_POST['email'] ?? '')) && hash_equals(mvp_admin_password(), (string) ($_POST['password'] ?? ''))) {
+        SessionService::regenerate();
+        $_SESSION['mvp_admin'] = true;
+        header('Location: index.php');
+        exit;
     } else {
-        $auth = new AuthService($pdo, $logger, $rateLimiter);
-        $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
-        $password = (string) ($_POST['password'] ?? '');
-        $remember = (string) ($_POST['remember'] ?? '') === '1';
-
-        if ($auth->attempt($email, $password, $remember)) {
-            header('Location: /admin/');
-            exit;
-        }
-
-        $error = 'Credenciais invalidas ou acesso indisponivel.';
+        $error = 'Acesso não autorizado.';
     }
 }
 ?>
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login | Admin Galvao</title>
-    <?php if ($adminCssBundle): ?>
-        <link rel="preload" href="<?= e($adminCssBundle); ?>" as="style">
-        <link rel="stylesheet" href="<?= e($adminCssBundle); ?>">
-    <?php else: ?>
-        <link rel="stylesheet" href="assets/css/admin.css">
-    <?php endif; ?>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login · Galvão Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/admin-mvp.css">
 </head>
 <body>
-    <main class="login-screen">
-        <form class="card login-card" action="login.php" method="post" autocomplete="on">
-            <?= csrf_field(); ?>
-            <img src="../public/assets/images/logo-galvao.png" alt="Galvao Lavagem Tecnica" width="164" height="164" decoding="async">
-            <div>
-                <span class="eyebrow">Acesso restrito</span>
-                <h1>Admin Galvao</h1>
-                <p class="muted">Ambiente protegido para operacao interna.</p>
-            </div>
-            <?php if ($error): ?>
-                <div class="security-alert"><?= e($error); ?></div>
-            <?php endif; ?>
-            <div class="field">
-                <label for="email">E-mail</label>
-                <input class="input" id="email" name="email" type="email" autocomplete="email" required>
-            </div>
-            <div class="field">
-                <label for="password">Senha</label>
-                <input class="input" id="password" name="password" type="password" autocomplete="current-password" required>
-            </div>
-            <div class="auth-options">
-                <label class="backup-toggle">
-                    <input type="checkbox" name="remember" value="1">
-                    <span>Manter conectado neste dispositivo</span>
-                </label>
-                <a href="forgot-password.php">Esqueci minha senha</a>
-            </div>
-            <button class="btn btn--primary" type="submit">Entrar</button>
-        </form>
-    </main>
+<main class="login-shell">
+  <form class="card login-card" method="post">
+    <img src="../public/assets/images/logo-galvao.png" alt="Galvão Lavagem Técnica">
+    <p class="eyebrow">Acesso administrativo</p>
+    <h1 class="section-title">Sistema operacional</h1>
+    <?php if ($error !== ''): ?><p class="alert"><?= mvp_e($error); ?></p><?php endif; ?>
+    <input type="hidden" name="_csrf_token" value="<?= mvp_e(csrf_token()); ?>">
+    <label class="field"><span>E-mail</span><input name="email" type="email" autocomplete="username" required></label>
+    <label class="field"><span>Senha</span><input name="password" type="password" autocomplete="current-password" required></label>
+    <button class="btn" type="submit" style="width:100%">Entrar</button>
+  </form>
+</main>
 </body>
 </html>

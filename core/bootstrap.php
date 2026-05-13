@@ -45,6 +45,7 @@ require_once __DIR__ . '/services/AiQueueWorker.php';
 require_once __DIR__ . '/services/ImageUploadService.php';
 require_once __DIR__ . '/services/ImageHistoryService.php';
 require_once __DIR__ . '/services/AiImageUsageService.php';
+require_once __DIR__ . '/services/AiVisualCacheService.php';
 require_once __DIR__ . '/services/SettingsService.php';
 require_once __DIR__ . '/services/DashboardAnalyticsService.php';
 require_once __DIR__ . '/services/RecurrenceService.php';
@@ -60,6 +61,7 @@ require_once __DIR__ . '/services/BackupService.php';
 require_once __DIR__ . '/services/AuditLogService.php';
 require_once __DIR__ . '/services/QueueService.php';
 require_once __DIR__ . '/services/QueueWorker.php';
+require_once __DIR__ . '/services/MvpService.php';
 
 date_default_timezone_set((string) ($config['app_timezone'] ?? 'America/Sao_Paulo'));
 SecurityService::applyHeaders();

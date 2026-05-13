@@ -1,5 +1,11 @@
 <?php
 require_once __DIR__ . '/../../core/bootstrap.php';
+$landingSettings = [];
+try {
+    $landingSettings = (new MvpService(Connection::get($config)))->settings();
+} catch (Throwable) {
+    $landingSettings = [];
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -47,6 +53,10 @@ require_once __DIR__ . '/../../core/bootstrap.php';
   ]
 }
 </script>
+<?= $landingSettings['meta_pixel'] ?? ''; ?>
+<?= $landingSettings['google_analytics'] ?? ''; ?>
+<?= $landingSettings['gtm'] ?? ''; ?>
+<?= $landingSettings['custom_head'] ?? ''; ?>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -995,9 +1005,18 @@ section { padding: 128px 40px; }
   justify-items: center;
   align-content: center;
   gap: 18px;
+  min-height: 260px;
+  margin: 0 20px 20px;
+  padding: 26px 20px;
+  border: 1px solid rgba(201,168,76,0.20);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(201,168,76,0.16), transparent 44%),
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
 }
 
 .ia-spinner {
+  position: relative;
   width: 66px;
   height: 66px;
   border: 2px solid rgba(201,168,76,0.16);
@@ -1009,9 +1028,20 @@ section { padding: 128px 40px; }
   box-shadow: 0 0 34px rgba(201,168,76,0.22);
 }
 
+.ia-spinner::after {
+  content: '';
+  position: absolute;
+  inset: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,0.60), rgba(201,168,76,0.08));
+  box-shadow: 0 0 20px rgba(201,168,76,0.34);
+}
+
 .ia-loading-copy {
   display: grid;
-  gap: 5px;
+  gap: 8px;
+  text-align: center;
+  max-width: 340px;
 }
 
 .ia-loading-copy strong {
@@ -1381,7 +1411,7 @@ footer {
       <p class="hero-sub reveal reveal-delay-2">Lavagem cuidadosa e controlada com equipamentos profissionais para recuperar a aparência de pisos, muros, fachadas, decks e bordas de piscina em Nova Friburgo e região.</p>
 
       <div class="hero-actions reveal reveal-delay-3">
-        <a href="galvao-quiz.html" class="btn-primary">
+        <a href="galvao-quiz.php" class="btn-primary">
           Solicitar orçamento
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
@@ -1411,16 +1441,6 @@ footer {
           </article>
           <article class="hero-slide">
             <div class="hero-compare-pane">
-              <img src="../assets/images/hero-before-after/project-2-before.jpg" alt="Piso externo antes da lavagem técnica">
-              <span class="hero-compare-label">Antes</span>
-            </div>
-            <div class="hero-compare-pane">
-              <img src="../assets/images/hero-before-after/project-2-after.png" alt="Piso externo depois da lavagem técnica">
-              <span class="hero-compare-label after">Depois</span>
-            </div>
-          </article>
-          <article class="hero-slide">
-            <div class="hero-compare-pane">
               <img src="../assets/images/hero-before-after/project-3-before.jpg" alt="Borda de piscina antes da lavagem técnica">
               <span class="hero-compare-label">Antes</span>
             </div>
@@ -1444,7 +1464,6 @@ footer {
           <button class="hero-carousel-dot active" type="button" aria-label="Ver projeto 1" data-hero-slide="0"></button>
           <button class="hero-carousel-dot" type="button" aria-label="Ver projeto 2" data-hero-slide="1"></button>
           <button class="hero-carousel-dot" type="button" aria-label="Ver projeto 3" data-hero-slide="2"></button>
-          <button class="hero-carousel-dot" type="button" aria-label="Ver projeto 4" data-hero-slide="3"></button>
         </div>
         <button class="hero-carousel-arrow prev" type="button" aria-label="Projeto anterior" data-hero-prev>
           <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
@@ -1585,7 +1604,7 @@ footer {
       </div>
       <div class="surface-item reveal reveal-delay-2">
         <div class="surface-icon icon-outline"><svg><use href="#i-roof"/></svg></div>
-        <p class="surface-name">Telhados</p>
+        <p class="surface-name">Telhado (altura média)</p>
         <p class="surface-note">Atenção ao acúmulo de lodo e musgo com abordagem compatível.</p>
       </div>
       <div class="surface-item reveal reveal-delay-3">
@@ -1664,7 +1683,7 @@ footer {
         </div>
 
         <div style="margin-top:32px">
-          <a href="galvao-quiz.html" class="btn-primary">
+          <a href="galvao-quiz.php" class="btn-primary">
             Iniciar avaliação por imagem
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
@@ -1729,7 +1748,7 @@ footer {
     <p class="section-sub reveal reveal-delay-2">Envie algumas informações e receba um orçamento claro, organizado e sem compromisso.</p>
 
     <div class="cta-actions reveal reveal-delay-3">
-      <a href="galvao-quiz.html" class="btn-primary">
+      <a href="galvao-quiz.php" class="btn-primary">
         Solicitar orçamento grátis
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
@@ -1840,30 +1859,95 @@ footer {
   let iaSelectedFile = null;
   let iaPreviewUrl = null;
   let iaReadyForQuiz = false;
+  let iaIsGenerating = false;
+  const iaCompression = {
+    maxWidth: 1280,
+    quality: 0.76,
+    mimeType: 'image/jpeg',
+  };
 
-  function setIaFile(file) {
-    if (!file || !file.type.startsWith('image/')) return;
-    iaSelectedFile = file;
-    iaReadyForQuiz = false;
+  function canvasToBlob(canvas, mimeType, quality) {
+    return new Promise(resolve => {
+      canvas.toBlob(blob => resolve(blob), mimeType, quality);
+    });
+  }
 
-    if (iaPreviewUrl) URL.revokeObjectURL(iaPreviewUrl);
-    iaPreviewUrl = URL.createObjectURL(file);
+  function loadImageFromFile(file) {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      const url = URL.createObjectURL(file);
 
-    iaPreviewImage.src = iaPreviewUrl;
-    iaUploadLabel.textContent = 'Imagem pronta para análise visual';
-    iaDropzone.classList.add('has-file');
-    iaDropzone.classList.add('is-hidden');
-    iaPreview.classList.add('visible');
-    iaLoading.classList.remove('visible');
-    iaResult.classList.remove('visible');
-    iaResultImage.classList.remove('visible');
-    iaResultImage.removeAttribute('src');
-    iaAction.textContent = 'Enviar imagem para análise';
+      image.onload = () => {
+        URL.revokeObjectURL(url);
+        resolve(image);
+      };
+      image.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error('Não foi possível preparar a imagem.'));
+      };
+      image.src = url;
+    });
+  }
+
+  async function optimizeIaImage(file) {
+    const image = await loadImageFromFile(file);
+    const scale = Math.min(1, iaCompression.maxWidth / Math.max(image.naturalWidth, image.naturalHeight));
+    const width = Math.max(1, Math.round(image.naturalWidth * scale));
+    const height = Math.max(1, Math.round(image.naturalHeight * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext('2d', { alpha: false });
+    context.fillStyle = '#111111';
+    context.fillRect(0, 0, width, height);
+    context.drawImage(image, 0, 0, width, height);
+
+    const blob = await canvasToBlob(canvas, iaCompression.mimeType, iaCompression.quality);
+
+    if (!blob) {
+      throw new Error('Não foi possível comprimir a imagem.');
+    }
+
+    return new File([blob], 'galvao-simulacao-otimizada.jpg', {
+      type: iaCompression.mimeType,
+      lastModified: Date.now(),
+    });
   }
 
   if (iaInput && iaAction) {
+    const setCleanIaFile = async (file) => {
+      if (!file || !file.type.startsWith('image/')) return;
+
+      iaSelectedFile = null;
+      iaReadyForQuiz = false;
+      iaIsGenerating = false;
+      iaAction.disabled = true;
+      iaAction.textContent = 'Preparando imagem...';
+
+      if (iaPreviewUrl) URL.revokeObjectURL(iaPreviewUrl);
+
+      try {
+        iaSelectedFile = await optimizeIaImage(file);
+      } catch (error) {
+        iaSelectedFile = file;
+      }
+
+      iaPreviewUrl = URL.createObjectURL(iaSelectedFile);
+      iaPreviewImage.src = iaPreviewUrl;
+      iaUploadLabel.textContent = 'Imagem otimizada e pronta para análise visual';
+      iaDropzone.classList.add('has-file', 'is-hidden');
+      iaPreview.classList.add('visible');
+      iaLoading.classList.remove('visible');
+      iaResult.classList.remove('visible');
+      iaResultImage.classList.remove('visible');
+      iaResultImage.removeAttribute('src');
+      iaAction.textContent = 'Enviar imagem para análise';
+      iaAction.disabled = false;
+    };
+
     iaInput.addEventListener('change', event => {
-      setIaFile(event.target.files[0]);
+      setCleanIaFile(event.target.files[0]);
     });
 
     iaDropzone.addEventListener('dragover', event => {
@@ -1873,19 +1957,20 @@ footer {
 
     iaDropzone.addEventListener('dragleave', () => {
       if (!iaSelectedFile) {
-        iaDropzone.classList.remove('has-file');
-        iaDropzone.classList.remove('is-hidden');
+        iaDropzone.classList.remove('has-file', 'is-hidden');
       }
     });
 
     iaDropzone.addEventListener('drop', event => {
       event.preventDefault();
-      setIaFile(event.dataTransfer.files[0]);
+      setCleanIaFile(event.dataTransfer.files[0]);
     });
 
     iaAction.addEventListener('click', async () => {
+      if (iaIsGenerating) return;
+
       if (iaReadyForQuiz) {
-        window.location.href = 'galvao-quiz.html';
+        window.location.href = 'galvao-quiz.php';
         return;
       }
 
@@ -1894,11 +1979,12 @@ footer {
         return;
       }
 
+      iaIsGenerating = true;
       iaLoading.classList.add('visible');
       iaResult.classList.remove('visible');
       iaResultImage.classList.remove('visible');
-      iaAction.textContent = 'Gerando simulação...';
       iaAction.disabled = true;
+      iaAction.textContent = 'Gerando prévia...';
 
       try {
         const formData = new FormData();
@@ -1909,37 +1995,39 @@ footer {
           method: 'POST',
           body: formData,
         });
-
         const payload = await response.json();
 
-        if (!response.ok || !payload.success) {
-          throw new Error(payload.message || 'Não foi possível gerar a simulação agora.');
-        }
+        if (payload.soft_block) {
+          iaResultTitle.textContent = 'Continue para o orçamento';
+          iaResultText.textContent = payload.message || 'Envie as fotos pelo quiz para uma avaliação manual organizada.';
+        } else {
+          if (!response.ok || !payload.success) {
+            throw new Error(payload.message || 'Não foi possível gerar a prévia agora.');
+          }
 
-        if (payload.simulation?.result_data_url) {
-          iaResultImage.src = payload.simulation.result_data_url;
-          iaResultImage.classList.add('visible');
-        }
+          if (payload.simulation?.result_data_url) {
+            iaResultImage.src = payload.simulation.result_data_url;
+            iaResultImage.classList.add('visible');
+          }
 
-        iaResultTitle.textContent = 'Simulação gerada';
-        iaResultText.textContent = payload.message || 'Resultado visual pronto para orientar o diagnóstico técnico.';
-        iaLoading.classList.remove('visible');
-        iaResult.classList.add('visible');
-        iaAction.disabled = false;
-        iaAction.textContent = 'Continuar para o orçamento';
-        iaReadyForQuiz = true;
+          iaResultTitle.textContent = payload.cached ? 'Prévia recuperada' : 'Prévia visual gerada';
+          iaResultText.textContent = payload.message || 'Resultado visual pronto para orientar o diagnóstico técnico.';
+        }
       } catch (error) {
-        iaLoading.classList.remove('visible');
         iaResultTitle.textContent = 'Não foi possível gerar agora';
         iaResultText.textContent = error.message || 'Você ainda pode seguir para o orçamento e enviar a imagem pelo quiz.';
+      } finally {
+        iaLoading.classList.remove('visible');
         iaResult.classList.add('visible');
         iaAction.disabled = false;
         iaAction.textContent = 'Continuar para o orçamento';
         iaReadyForQuiz = true;
+        iaIsGenerating = false;
       }
     });
   }
 </script>
 
+<?= $landingSettings['custom_body'] ?? ''; ?>
 </body>
 </html>
