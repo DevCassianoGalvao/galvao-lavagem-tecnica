@@ -28,7 +28,7 @@ php tools/deploy-check.php
 4. Configure:
    - `APP_ENV=production`
    - `APP_DEBUG=false`
-   - `APP_URL=https://seudominio.com.br`
+   - `APP_URL=https://www.galvaolavagemtecnica.com.br`
    - credenciais MySQL do cPanel
    - `OPENAI_API_KEY`
 5. Importe `core/database/schema.sql` no MySQL.

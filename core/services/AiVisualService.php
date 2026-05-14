@@ -48,6 +48,7 @@ final class AiVisualService
             'analysis' => [
                 'intent' => 'revitalizacao_visual',
                 'watermark' => true,
+                'cost_profile' => 'optimized',
                 'architecture_preserved' => true,
             ],
         ]);
@@ -81,17 +82,19 @@ final class AiVisualService
             throw new RuntimeException('Extensao cURL indisponivel para chamar a OpenAI.');
         }
 
-        $model = (string) ($this->config['openai_image_model'] ?? 'gpt-image-1.5');
+        $model = $this->imageModel();
         $mimeType = mime_content_type($imagePath) ?: 'image/png';
-        $imageDataUrl = 'data:' . $mimeType . ';base64,' . base64_encode((string) file_get_contents($imagePath));
+        $extension = match ($mimeType) {
+            'image/jpeg' => 'jpg',
+            'image/webp' => 'webp',
+            default => 'png',
+        };
 
         $payload = [
             'model' => $model,
             'prompt' => $prompt,
-            'images' => [
-                ['image_url' => $imageDataUrl],
-            ],
-            'size' => '1024x1024',
+            'image' => new CURLFile($imagePath, $mimeType, 'environment.' . $extension),
+            'size' => (string) ($this->config['ai_image_generation_size'] ?? '1024x1024'),
             'output_format' => 'png',
         ];
 
@@ -101,9 +104,8 @@ final class AiVisualService
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HTTPHEADER => [
                 'Authorization: Bearer ' . $apiKey,
-                'Content-Type: application/json',
             ],
-            CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE),
+            CURLOPT_POSTFIELDS => $payload,
             CURLOPT_TIMEOUT => 120,
         ]);
 
@@ -140,17 +142,30 @@ final class AiVisualService
         return is_string($message) ? '[' . $status . '] ' . $message : '[' . $status . '] ' . substr($raw, 0, 220);
     }
 
+    private function imageModel(): string
+    {
+        $model = (string) ($this->config['openai_image_model'] ?? 'gpt-image-1.5');
+        return trim($model) !== '' ? trim($model) : 'gpt-image-1.5';
+    }
+
     private function prompt(): string
     {
         return implode(' ', [
-            'Edit the uploaded image and create a clearly improved AFTER version of the same external surface after professional pressure washing with a high-pressure washer.',
-            'The final image must show the surface clean: remove nearly all visible moss, algae, green organic growth, mildew, slime, dark grime, black stains, mud and slippery buildup.',
-            'If the image shows a mossy stone wall, transform it into a clean natural stone wall: visible gray and beige stones, cleaner joints, dry-looking surfaces and only very minimal natural aging.',
-            'Make the cleaning transformation strong and obvious, comparable to a before-and-after pressure washing advertisement.',
-            'Use the original photo only as structural reference. You may regenerate surface details where moss covered the material so the clean material underneath becomes visible.',
-            'Keep the same general camera angle, wall layout, stone pattern, perspective, scale and composition so it still feels like the same place.',
-            'Do not paint the wall, replace stones, add decoration, add water puddles, add shine, add plants, add furniture, change architecture or make it look like a 3D render.',
-            'The result must be photorealistic, natural, premium and believable as a real lavagem de alta pressao / pressure washing result.',
+            'Edit the uploaded image as a conservative photorealistic cleaning simulation of professional pressure washing with a high-pressure washer.',
+            'Output only one final AFTER image: a single full-frame cleaned version of the uploaded photo.',
+            'Do not create a before-and-after comparison, split-screen, side-by-side layout, vertical divider, labels, captions, arrows, borders, panels or collage.',
+            'The user already provided the BEFORE image, so the generated image must show only the cleaned AFTER result.',
+            'This is a cleaning simulation of the exact same place, not a renovation, redesign, reconstruction, material replacement or scene generation.',
+            'Preserve the original camera angle, lens perspective, crop, framing, scale, depth, horizon, shadows, lighting direction and overall composition.',
+            'Preserve all architecture, roof direction, floor direction, tile layout, stone layout, brick layout, grout lines, joints, edges, stairs, walls, borders, fixed objects, plants, furniture, drains, windows, doors, railings and surrounding context exactly where they are.',
+            'Do not change the direction, shape, spacing, pattern, size, color family or material of roofs, tiles, floors, stones, bricks, wood, concrete or walls.',
+            'Do not replace a floor with another floor, do not replace a roof with another roof, do not invent new tiles, stones, bricks, boards, objects or decorative elements.',
+            'Only remove or reduce visible dirt caused by external exposure: moss, algae, green organic growth, mildew, slime, mud, dark grime, black stains and slippery buildup.',
+            'Reveal the existing material underneath the dirt while keeping its original pattern, natural imperfections, age, color variation and geometry.',
+            'The transformation should look like the same surface after careful lavagem de alta pressao / pressure washing, with a visibly cleaner and safer appearance.',
+            'Make the improvement clear but plausible: no glossy finish, no wet shine, no artificial perfection, no 3D render, no beauty filter and no over-cleaned unrealistic surface.',
+            'If an area is too covered by moss or dirt, infer the cleaned appearance from neighboring visible parts of the same material, without changing the underlying layout or object positions.',
+            'Output must remain photorealistic, natural, premium and believable as a real cleaning result from the same environment.',
         ]);
     }
 
@@ -192,12 +207,17 @@ final class AiVisualService
 
         $width = imagesx($image);
         $height = imagesy($image);
-        $bar = imagecolorallocatealpha($image, 15, 15, 15, 58);
-        $gold = imagecolorallocatealpha($image, 212, 175, 55, 18);
-        $text = (string) ($this->config['ai_watermark_text'] ?? 'Simulacao IA - Galvao Lavagem Tecnica');
+        $shadow = imagecolorallocatealpha($image, 0, 0, 0, 52);
+        $gold = imagecolorallocatealpha($image, 212, 175, 55, 22);
+        $text = (string) ($this->config['ai_watermark_text'] ?? 'Simulação visual - Galvão Lavagem Técnica');
+        $font = 2;
+        $textWidth = imagefontwidth($font) * strlen($text);
+        $textHeight = imagefontheight($font);
+        $x = max(12, $width - $textWidth - 16);
+        $y = max(12, $height - $textHeight - 14);
 
-        imagefilledrectangle($image, 0, $height - 42, $width, $height, $bar);
-        imagestring($image, 3, 18, $height - 28, $text, $gold);
+        imagefilledrectangle($image, $x - 8, $y - 5, $width - 8, $height - 8, $shadow);
+        imagestring($image, $font, $x, $y, $text, $gold);
 
         ob_start();
         imagepng($image);

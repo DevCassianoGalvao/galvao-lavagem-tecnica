@@ -2,7 +2,7 @@
 
 final class ImageOptimizationService
 {
-    public function optimizeOriginal(string $path, string $mimeType, int $maxWidth = 1800): void
+    public function optimizeOriginal(string $path, string $mimeType, int $maxWidth = 1280, int $quality = 78): void
     {
         if (!function_exists('imagecreatefromstring') || !is_file($path)) {
             return;
@@ -20,7 +20,7 @@ final class ImageOptimizationService
             ? $this->resize($image, $maxWidth, (int) round($height * ($maxWidth / $width)))
             : $image;
 
-        $this->save($target, $path, $mimeType, 82);
+        $this->save($target, $path, $mimeType, $quality);
 
         if ($target !== $image) {
             imagedestroy($target);

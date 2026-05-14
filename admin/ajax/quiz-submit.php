@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../_bootstrap.php';
 
 header('Content-Type: application/json; charset=utf-8');
@@ -14,12 +14,6 @@ try {
     $logger = new SecurityLogger($pdo);
     (new RateLimitService($pdo, $logger))->requireAllowed('mvp_quiz_submit', 8, 3600);
 
-    if (!csrf_validate($_POST['_csrf_token'] ?? null)) {
-        http_response_code(419);
-        echo json_encode(['success' => false, 'message' => 'Token de segurança inválido.'], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-
     $name = clean_text($_POST['name'] ?? '');
     $phone = clean_text($_POST['phone'] ?? '');
 
@@ -29,7 +23,13 @@ try {
         exit;
     }
 
-    $leadId = mvp_service()->createLead($_POST, $_FILES['images'] ?? []);
+    $service = mvp_service();
+    $leadId = $service->createLead($_POST, $_FILES['images'] ?? []);
+    $lead = $service->lead($leadId);
+
+    if ($lead) {
+        (new LeadNotificationService($config))->notifyNewLead($lead);
+    }
 
     echo json_encode([
         'success' => true,
@@ -43,3 +43,4 @@ try {
         'message' => APP_DEBUG ? $exception->getMessage() : 'Não foi possível enviar agora.',
     ], JSON_UNESCAPED_UNICODE);
 }
+

@@ -10,19 +10,19 @@ final class AiVisualCacheService
     {
         $stmt = $this->pdo->prepare(
             'SELECT ai.id AS history_id,
-                    usage.source_upload_id,
-                    usage.result_upload_id,
-                    result.storage_path,
-                    result.mime_type
-             FROM ai_image_usages usage
-             INNER JOIN uploads source ON source.id = usage.source_upload_id
-             INNER JOIN uploads result ON result.id = usage.result_upload_id
-             LEFT JOIN ai_images ai ON ai.result_upload_id = usage.result_upload_id
-             WHERE usage.session_id = :session_id
-               AND source.sha256_hash = :source_hash
-               AND result.status = "active"
-               AND result.storage_path IS NOT NULL
-             ORDER BY usage.created_at DESC
+                    u.source_upload_id,
+                    u.result_upload_id,
+                    res.storage_path,
+                    res.mime_type
+             FROM ai_image_usages u
+             INNER JOIN uploads src ON src.id = u.source_upload_id
+             INNER JOIN uploads res ON res.id = u.result_upload_id
+             LEFT JOIN ai_images ai ON ai.result_upload_id = u.result_upload_id
+             WHERE u.session_id = :session_id
+               AND src.sha256_hash = :source_hash
+               AND res.status = "active"
+               AND res.storage_path IS NOT NULL
+             ORDER BY u.created_at DESC
              LIMIT 1'
         );
 

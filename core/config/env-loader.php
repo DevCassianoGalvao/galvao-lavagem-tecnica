@@ -9,10 +9,22 @@ if (!function_exists('galvao_env_load')) {
 
         $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
 
+        $lastKey = null;
+
         foreach ($lines as $line) {
             $line = trim($line);
 
-            if ($line === '' || str_starts_with($line, '#') || !str_contains($line, '=')) {
+            if ($line === '' || str_starts_with($line, '#')) {
+                continue;
+            }
+
+            if (!str_contains($line, '=')) {
+                if ($lastKey === 'OPENAI_API_KEY' && str_starts_with($line, '-')) {
+                    $_ENV[$lastKey] = (string) ($_ENV[$lastKey] ?? '') . $line;
+                    $_SERVER[$lastKey] = $_ENV[$lastKey];
+                    putenv($lastKey . '=' . $_ENV[$lastKey]);
+                }
+
                 continue;
             }
 
@@ -27,6 +39,7 @@ if (!function_exists('galvao_env_load')) {
             $_ENV[$key] = $value;
             $_SERVER[$key] = $value;
             putenv($key . '=' . $value);
+            $lastKey = $key;
         }
     }
 }

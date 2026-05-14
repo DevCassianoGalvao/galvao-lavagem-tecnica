@@ -3,6 +3,8 @@ core/config/env.php
 /vendor/
 /legacy-system/
 /backup-system/
+/deploy-*/
+galvao-lavagem-tecnica-FINAL-CPANEL.zip
 /logs/*
 !/logs/.htaccess
 !/logs/README.md

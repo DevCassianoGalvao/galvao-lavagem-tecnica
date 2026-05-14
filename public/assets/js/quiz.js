@@ -1,4 +1,4 @@
-const GalvaoQuiz = (() => {
+﻿const GalvaoQuiz = (() => {
   const maxImages = 10;
 
   const state = {

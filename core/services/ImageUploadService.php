@@ -27,12 +27,24 @@ final class ImageUploadService
         $absolutePath = STORAGE_PATH . '/' . $relativePath;
 
         if (!is_dir($absoluteDir)) {
-            mkdir($absoluteDir, 0775, true);
+            mkdir($absoluteDir, 0755, true);
+        }
+
+        @chmod($absoluteDir, 0755);
+
+        if (!is_writable($absoluteDir)) {
+            throw new RuntimeException('A pasta de imagens nao tem permissao de escrita: storage/' . trim($directory, '/'));
         }
 
         if (!file_exists($absolutePath)) {
-            if (!move_uploaded_file($tmpPath, $absolutePath)) {
-                throw new RuntimeException('Nao foi possivel salvar a imagem.');
+            $saved = move_uploaded_file($tmpPath, $absolutePath);
+
+            if (!$saved && is_file($tmpPath)) {
+                $saved = @copy($tmpPath, $absolutePath);
+            }
+
+            if (!$saved) {
+                throw new RuntimeException('Nao foi possivel salvar a imagem. Verifique a permissao da pasta storage no cPanel.');
             }
         }
 
@@ -104,7 +116,13 @@ final class ImageUploadService
         $absolutePath = STORAGE_PATH . '/' . $relativePath;
 
         if (!is_dir($absoluteDir)) {
-            mkdir($absoluteDir, 0775, true);
+            mkdir($absoluteDir, 0755, true);
+        }
+
+        @chmod($absoluteDir, 0755);
+
+        if (!is_writable($absoluteDir)) {
+            throw new RuntimeException('A pasta de imagens nao tem permissao de escrita: storage/' . trim($directory, '/'));
         }
 
         if (!file_exists($absolutePath)) {

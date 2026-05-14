@@ -322,6 +322,7 @@ final class MvpService
         $this->ensureColumn('mvp_leads', 'address_complement', 'VARCHAR(120) NULL AFTER address_number');
         $this->ensureColumn('mvp_leads', 'city', 'VARCHAR(100) NULL AFTER neighborhood');
         $this->ensureColumn('mvp_leads', 'cep', 'VARCHAR(20) NULL AFTER city');
+        $this->ensureColumn('mvp_leads', 'internal_notes', 'TEXT NULL AFTER notes');
         $this->pdo->exec(
             'CREATE TABLE IF NOT EXISTS mvp_lead_images (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -496,3 +497,4 @@ final class MvpService
         return $top;
     }
 }
+

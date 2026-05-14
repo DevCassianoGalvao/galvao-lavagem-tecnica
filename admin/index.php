@@ -7,11 +7,6 @@ $page = clean_text($_GET['page'] ?? 'dashboard');
 $allowedPages = ['dashboard', 'leads', 'lead', 'agenda', 'metricas', 'config'];
 $page = in_array($page, $allowedPages, true) ? $page : 'dashboard';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !csrf_validate($_POST['_csrf_token'] ?? null)) {
-    http_response_code(419);
-    exit('Token inválido.');
-}
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $page === 'lead') {
     $service->updateLead((int) ($_POST['id'] ?? 0), (string) ($_POST['status'] ?? 'novo'), (string) ($_POST['internal_notes'] ?? ''));
     header('Location: index.php?page=lead&id=' . (int) ($_POST['id'] ?? 0));
@@ -343,3 +338,5 @@ function renderLeadTable(array $leads): void
     </div>
     <?php
 }
+
+

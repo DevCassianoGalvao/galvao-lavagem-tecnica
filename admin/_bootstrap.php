@@ -1,6 +1,29 @@
 <?php
 
-require_once __DIR__ . '/../core/bootstrap.php';
+declare(strict_types=1);
+
+$config = require __DIR__ . '/../core/config/app.php';
+
+require_once __DIR__ . '/../core/helpers/sanitize.php';
+require_once __DIR__ . '/../core/database/Connection.php';
+require_once __DIR__ . '/../core/security/SessionService.php';
+require_once __DIR__ . '/../core/security/CsrfService.php';
+require_once __DIR__ . '/../core/security/csrf.php';
+require_once __DIR__ . '/../core/security/SecurityLogger.php';
+require_once __DIR__ . '/../core/security/RateLimitService.php';
+require_once __DIR__ . '/../core/security/UploadSecurityService.php';
+require_once __DIR__ . '/../core/services/MvpService.php';
+require_once __DIR__ . '/../core/services/LeadNotificationService.php';
+
+date_default_timezone_set((string) ($config['app_timezone'] ?? 'America/Sao_Paulo'));
+
+if (!headers_sent()) {
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: SAMEORIGIN');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+}
+
+SessionService::start();
 
 function mvp_pdo(): PDO
 {
@@ -15,7 +38,13 @@ function mvp_service(): MvpService
 
 function mvp_is_logged(): bool
 {
-    return isset($_SESSION['mvp_admin']) && $_SESSION['mvp_admin'] === true;
+    if (isset($_SESSION['mvp_admin']) && $_SESSION['mvp_admin'] === true) {
+        return true;
+    }
+
+    $token = $_COOKIE['galvao_mvp_auth'] ?? '';
+
+    return is_string($token) && hash_equals(mvp_auth_token(), $token);
 }
 
 function mvp_require_login(): void
@@ -36,6 +65,33 @@ function mvp_admin_password(): string
 {
     global $config;
     return (string) ($config['admin_password'] ?? galvao_env('ADMIN_PASSWORD', 'Admin@12345'));
+}
+
+function mvp_auth_token(): string
+{
+    return hash_hmac('sha256', mvp_admin_email() . '|mvp-admin', mvp_admin_password());
+}
+
+function mvp_set_auth_cookie(): void
+{
+    setcookie('galvao_mvp_auth', mvp_auth_token(), [
+        'expires' => time() + 86400,
+        'path' => '/admin',
+        'secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+function mvp_clear_auth_cookie(): void
+{
+    setcookie('galvao_mvp_auth', '', [
+        'expires' => time() - 3600,
+        'path' => '/admin',
+        'secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
 }
 
 function mvp_e(mixed $value): string
@@ -105,7 +161,7 @@ function mvp_header(string $title, string $page): void
         <p class="eyebrow">Sistema operacional simples</p>
         <h1><?= mvp_e($title); ?></h1>
       </div>
-      <a class="pill" href="../public/landing/" target="_blank">Ver site</a>
+      <a class="pill" href="/" target="_blank">Ver site</a>
     </header>
 <?php
 }

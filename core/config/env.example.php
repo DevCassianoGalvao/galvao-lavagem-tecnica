@@ -6,6 +6,8 @@ return [
     'app_env' => galvao_env('APP_ENV', 'local'),
     'app_debug' => galvao_env('APP_DEBUG', true),
     'app_timezone' => galvao_env('APP_TIMEZONE', 'America/Sao_Paulo'),
+    'admin_email' => galvao_env('ADMIN_EMAIL', 'admin@galvao.local'),
+    'admin_password' => galvao_env('ADMIN_PASSWORD', 'Admin@12345'),
 
     'db_host' => galvao_env('DB_HOST', '127.0.0.1'),
     'db_name' => galvao_env('DB_NAME', 'galvao_lavagem_tecnica'),
@@ -18,6 +20,12 @@ return [
     'openai_image_model' => galvao_env('OPENAI_IMAGE_MODEL', 'gpt-image-1.5'),
     'google_calendar_client_id' => galvao_env('GOOGLE_CALENDAR_CLIENT_ID', ''),
     'google_calendar_client_secret' => galvao_env('GOOGLE_CALENDAR_CLIENT_SECRET', ''),
+
+    'brevo_enabled' => galvao_env('BREVO_ENABLED', false),
+    'brevo_api_key' => galvao_env('BREVO_API_KEY', ''),
+    'brevo_from_email' => galvao_env('BREVO_FROM_EMAIL', ''),
+    'brevo_from_name' => galvao_env('BREVO_FROM_NAME', 'Galvão Lavagem Técnica'),
+    'lead_notification_email' => galvao_env('LEAD_NOTIFICATION_EMAIL', ''),
 
     'upload_max_mb' => galvao_env('UPLOAD_MAX_MB', 10),
     'upload_allowed_mimes' => galvao_env('UPLOAD_ALLOWED_MIMES', 'image/jpeg,image/png,image/webp,image/gif'),

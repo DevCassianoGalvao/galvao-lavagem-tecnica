@@ -1,5 +1,15 @@
 <?php
-require_once __DIR__ . '/../../core/bootstrap.php';
+$config = require __DIR__ . '/../../core/config/app.php';
+
+require_once __DIR__ . '/../../core/helpers/sanitize.php';
+require_once __DIR__ . '/../../core/security/SessionService.php';
+require_once __DIR__ . '/../../core/security/CsrfService.php';
+require_once __DIR__ . '/../../core/security/csrf.php';
+require_once __DIR__ . '/../../core/services/MvpService.php';
+
+date_default_timezone_set((string) ($config['app_timezone'] ?? 'America/Sao_Paulo'));
+SessionService::start();
+
 $neighborhoods = MvpService::neighborhoods();
 ?>
 <!DOCTYPE html>
@@ -581,6 +591,23 @@ $neighborhoods = MvpService::neighborhoods();
 
   .btn-next svg { width: 16px; height: 16px; }
 
+  .btn-next.is-loading {
+    pointer-events: none;
+    opacity: 0.82;
+  }
+
+  .btn-next.is-loading::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(10,10,10,0.28);
+    border-top-color: var(--black);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
   /* Error */
   .field-error {
     font-size: 12px;
@@ -1095,6 +1122,14 @@ $neighborhoods = MvpService::neighborhoods();
   const currentStepLabel = document.getElementById('current-step-label');
   const btnBack = document.getElementById('btn-back');
   const btnNext = document.getElementById('btn-next');
+  const btnNextDefault = btnNext.innerHTML;
+
+  function setSubmitting(isSubmitting) {
+    btnNext.disabled = isSubmitting;
+    btnBack.disabled = isSubmitting || currentStep === 1;
+    btnNext.classList.toggle('is-loading', isSubmitting);
+    btnNext.innerHTML = isSubmitting ? 'Enviando...' : btnNextDefault;
+  }
 
   function getStepEl(n) {
     return document.querySelector(`.step[data-step="${n}"]`);
@@ -1244,7 +1279,7 @@ $neighborhoods = MvpService::neighborhoods();
     quizData.priority.forEach((item) => formData.append('priority[]', item));
     uploadedFiles.forEach((file) => formData.append('images[]', file));
 
-    btnNext.disabled = true;
+    setSubmitting(true);
 
     try {
       const response = await fetch('../../admin/ajax/quiz-submit.php', {
@@ -1252,7 +1287,18 @@ $neighborhoods = MvpService::neighborhoods();
         body: formData,
         headers: { Accept: 'application/json' },
       });
-      const payload = await response.json();
+      const rawText = await response.text();
+      let payload = null;
+
+      try {
+        payload = rawText ? JSON.parse(rawText) : null;
+      } catch (parseError) {
+        payload = null;
+      }
+
+      if (!payload) {
+        throw new Error('Não foi possível enviar agora. Tente novamente em alguns instantes.');
+      }
 
       if (!response.ok || !payload.success) {
         throw new Error(payload.message || 'Não foi possível enviar agora.');
@@ -1261,7 +1307,7 @@ $neighborhoods = MvpService::neighborhoods();
       alert(error.message || 'Não foi possível enviar agora.');
       return false;
     } finally {
-      btnNext.disabled = false;
+      setSubmitting(false);
     }
 
     return true;
@@ -1275,6 +1321,8 @@ $neighborhoods = MvpService::neighborhoods();
       if (!sent) {
         return;
       }
+      goTo(TOTAL_STEPS);
+      return;
     }
     goTo(currentStep + 1);
   });
@@ -1412,3 +1460,4 @@ $neighborhoods = MvpService::neighborhoods();
 </script>
 </body>
 </html>
+

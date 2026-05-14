@@ -16,13 +16,14 @@ final class AiImageUsageService
         $stmt = $this->pdo->prepare(
             'SELECT created_at
              FROM ai_image_usages
-             WHERE (session_id = :session_id OR ip_address = :ip_address OR (:lead_id IS NOT NULL AND lead_id = :lead_id))
+             WHERE (session_id = :session_id OR ip_address = :ip_address OR (:lead_id_filter IS NOT NULL AND lead_id = :lead_id_value))
              ORDER BY created_at DESC'
         );
         $stmt->execute([
             'session_id' => $sessionId,
             'ip_address' => $ipAddress,
-            'lead_id' => $leadId,
+            'lead_id_filter' => $leadId,
+            'lead_id_value' => $leadId,
         ]);
         $rows = $stmt->fetchAll();
 
